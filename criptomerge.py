@@ -50,13 +50,30 @@ def read_blocks(b):
 	print lol
 
 
-#TODO: finish this function
 def convert_to_matrix(b):
 	size = (8, 8)
 	m = np.zeros(size, dtype=np.int)
-	print m
+	#print m
 	print b
 	print len(b)
+	if len(b)==64:
+		cont =  0
+		for i in range(0, 8):
+			for j in range(0, 8):
+				m[i][j] = ord(b[cont])
+				cont +=1
+		print m
+	else:
+		cont =  0
+		for i in range(0, 8):
+			for j in range(0, 8):
+				if cont<len(b):
+					m[i][j] = ord(b[cont])
+					cont +=1
+				else:
+					break
+		print m
+
 
 if __name__ == "__main__":
 	args = read_args()
