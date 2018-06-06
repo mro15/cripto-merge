@@ -55,14 +55,17 @@ def read_blocks(b, key):
 		block = convert_to_matrix(lol)
 		mult_by_key(block, key)
 
-#a ideia dessa funcao e receber a matriz e a key e fazer o estencil
 def mult_by_key(block, key):
 	print "block"
 	print block
 	print "key"
 	print key
-	i, j = key.shape[:2]
-	pass
+	res = np.zeros((8, 8), dtype=np.int)
+	ik, jk = key.shape[:2]
+	for i in range(0, 8):
+		for j in range(0, 8):
+			res[i][j] = block[i][j] * key[i%ik][j%jk]
+	print res
 
 def convert_to_matrix(b):
 	size = (8, 8)
