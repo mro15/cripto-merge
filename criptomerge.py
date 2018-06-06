@@ -23,21 +23,21 @@ def open_file(file_in):
 def file_parser(f):
 	b = f.read()
 	f.close()
-	print b
 	#convert str to utf-8
 	b = unicode(b, 'utf-8')
 	#chnge to unicode and encode in ascii
 	b = unicodedata.normalize('NFKD', b).encode('ASCII', 'ignore')
-	print b
 	b = re.sub('[^A-Za-z0-9]+', '', b)
-	print b
 	return b
 
 #read key and mount the estencil
 def read_key(key_file):
-	pass
+	key = []
+	for line in key_file:
+			key.append(map(int, line.strip().split(' ')))
+	return np.array(key)
 
-def read_blocks(b):
+def read_blocks(b, key):
 	lol = []
 	cont = 0
 	for i in range(0, len(b)/64):
@@ -45,6 +45,7 @@ def read_blocks(b):
 			lol.append(b[cont])
 			cont +=1
 		block = convert_to_matrix(lol)
+		mult_by_key(block, key)
 		lol = []
 	m = len(b)%64
 	if(m!=0):
@@ -52,25 +53,26 @@ def read_blocks(b):
 			lol.append(b[cont])
 			cont+=1
 		block = convert_to_matrix(lol)
-	print lol
+		mult_by_key(block, key)
 
 #a ideia dessa funcao e receber a matriz e a key e fazer o estencil
 def mult_by_key(block, key):
+	print "block"
+	print block
+	print "key"
+	print key
+	i, j = key.shape[:2]
 	pass
 
 def convert_to_matrix(b):
 	size = (8, 8)
 	m = np.zeros(size, dtype=np.int)
-	#print m
-	print b
-	print len(b)
 	if len(b)==64:
 		cont =  0
 		for i in range(0, 8):
 			for j in range(0, 8):
 				m[i][j] = ord(b[cont])
 				cont +=1
-		print m
 	else:
 		cont =  0
 		for i in range(0, 8):
@@ -80,8 +82,7 @@ def convert_to_matrix(b):
 					cont +=1
 				else:
 					break
-		print m
-
+	return m
 
 if __name__ == "__main__":
 	args = read_args()
@@ -89,6 +90,8 @@ if __name__ == "__main__":
 	k = open_file(args.key)
 	key = read_key(k)
 	b = file_parser(f)
-	read_blocks(b)
+	print "TEXTO CLARO"
+	print b
+	read_blocks(b, key)
 	#TODO: as imagens resultantes serao escritas em um diretorio
 	#			como serao os nomes dos arquivos
