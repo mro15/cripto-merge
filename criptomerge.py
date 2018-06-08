@@ -6,11 +6,14 @@ import os.path
 import numpy as np
 import unicodedata
 import re
+import cv2
+import random
 
 def read_args():
 	parser = argparse.ArgumentParser(description='Os parametros sao:')
 	parser.add_argument('-f', '--file', type=str, required=True, help='nome do arquivo a ser criptografado')
 	parser.add_argument('-k', '--key', type=str, required=True, help='nome do arquivo com a chave')
+	parser.add_argument('-i', '--image', type=str, required=True, help='nome do arquivo para guardar a imagem (.png)')
 	return parser.parse_args()
 
 def open_file(file_in):
@@ -38,6 +41,7 @@ def read_key(key_file):
 	return np.array(key)
 
 def read_blocks(b, key):
+	final_image = 0
 	lol = []
 	cont = 0
 	for i in range(0, len(b)/64):
@@ -45,7 +49,9 @@ def read_blocks(b, key):
 			lol.append(b[cont])
 			cont +=1
 		block = convert_to_matrix(lol)
-		mult_by_key(block, key)
+		mult = mult_by_key(block, key)
+		img = mount_rgb_image(mult)
+		final_image = concat_blocks(final_image, img)
 		lol = []
 	m = len(b)%64
 	if(m!=0):
@@ -53,19 +59,35 @@ def read_blocks(b, key):
 			lol.append(b[cont])
 			cont+=1
 		block = convert_to_matrix(lol)
-		mult_by_key(block, key)
+		mult = mult_by_key(block, key)
+		img = mount_rgb_image(mult)
+		final_image = concat_blocks(final_image, img)
+	return final_image
+
+def concat_blocks(img, block):
+	if type(img) is int:
+		return block
+	return np.concatenate((img, block), axis=0)
+
+def mount_rgb_image(mat):
+	img = np.zeros((8, 8, 3), dtype=np.int)
+	#channels = ['b', 'g', 'r'] [0, 1, 2]
+	random.seed(10) #seria uma boa passar a seed por parametro sera
+	for i in range(0, 8):
+		for j in range(0, 8):
+			img[i][j][0] = random.randint(0, 255)
+			img[i][j][1] = mat[i][j]/255
+			img[i][j][2] = mat[i][j]%255
+
+	return img
 
 def mult_by_key(block, key):
-	print "block"
-	print block
-	print "key"
-	print key
 	res = np.zeros((8, 8), dtype=np.int)
 	ik, jk = key.shape[:2]
 	for i in range(0, 8):
 		for j in range(0, 8):
 			res[i][j] = block[i][j] * key[i%ik][j%jk]
-	print res
+	return res
 
 def convert_to_matrix(b):
 	size = (8, 8)
@@ -95,6 +117,8 @@ if __name__ == "__main__":
 	b = file_parser(f)
 	print "TEXTO CLARO"
 	print b
-	read_blocks(b, key)
-	#TODO: as imagens resultantes serao escritas em um diretorio
-	#			como serao os nomes dos arquivos
+	img = read_blocks(b, key)
+	print img.shape[:3]
+	print "IMAGEM FINAL"
+	print img
+	cv2.imwrite(args.image, img)
