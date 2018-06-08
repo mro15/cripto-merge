@@ -8,6 +8,7 @@ import unicodedata
 import re
 import cv2
 import random
+from datetime import datetime as dt
 
 def read_args():
 	parser = argparse.ArgumentParser(description='Os parametros sao:')
@@ -72,7 +73,7 @@ def concat_blocks(img, block):
 def mount_rgb_image(mat):
 	img = np.zeros((8, 8, 3), dtype=np.int)
 	#channels = ['b', 'g', 'r'] [0, 1, 2]
-	random.seed(10) #seria uma boa passar a seed por parametro sera
+	random.seed(dt.now()) #seria uma boa passar a seed por parametro sera
 	for i in range(0, 8):
 		for j in range(0, 8):
 			img[i][j][0] = random.randint(0, 255)
