@@ -51,8 +51,9 @@ def dec_to_text(block, f):
 
 if __name__ == "__main__":
 	args = read_args()
-	f = open(args.file, 'w')
+	f = open(args.file, 'wt')
 	k = open_file(args.key)
 	key = read_key(k)
 	img = cv2.imread(args.image)
 	decript(img, key, f)
+	f.close()
