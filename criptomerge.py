@@ -119,7 +119,4 @@ if __name__ == "__main__":
 	print "TEXTO CLARO"
 	print b
 	img = read_blocks(b, key)
-	print img.shape[:3]
-	print "IMAGEM FINAL"
-	print img
 	cv2.imwrite(args.image, img)
